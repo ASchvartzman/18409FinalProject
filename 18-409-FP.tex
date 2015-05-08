@@ -9,6 +9,8 @@
 \usepackage{amsfonts}
 \usepackage{mathtools}
 \usepackage{complexity}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
 
 	% packages that allow mathematical formatting
 
@@ -40,8 +42,50 @@ The first paper, by Kannan et al.\cite{doi:10.1137/S0097539704445925}, uses a sp
 
 The second paper, by Dasgupta et al.\cite{1530741}, focuses on efficiently learning a mixture of symmetric heavy-tailed distributions whose expectation or variance might be infinite, with minimal separation requirements. They present an algorithm for learning when the centers of the distributions are known which uses the $\ell_1$ norm as a classifier, assuming some additional restrictions on the distributions. They also present an algorithm that works when the centers are not known and provably works for the more general family of distributions they consider. We will focus on the first result as it is easier to understand and provides some intuition on the second result. 
 
+In both papers, the authors examine different ways to solve the following problem. There is a mixture of $k$ distributions $D_i$ in $d$ dimensions. Each distribution has its own mixing weight $w_i$. A sample $x$ from the mixture is taken from distribution $D_i$ with probability $w_i$. The goal is to classify the points of the sample and approximately learn the underlying distributions. 
+
 \section{Spectral Methods paper}
-\section{Heavy-Tailed Distributions}
+
+\section{Heavy-Tailed Distributions.}
+
+The Dasgupta paper \cite{1530741} focuses on heavy-tailed distributions when some of the  moments can even be infinite. In these cases, medians can serve as a more robust estimator than means or variances. Motivated by this, the median radius of a one dimensional distribution is defined. 
+
+\begin{definition}
+Let $X$ be a random variable with cumulative distribution function $F(X)$. The center of $X$ is the minimum $c$ such that $F(x) = \frac{1}{2}$. The radius $R$ of $X$ is the smallest $X$ such that half of $X$'s density is in the interval $[c-R, c+R]$. This definition can be generalized to multidimensional distributions by considering the centers coordinate-wise. 
+\end{definition}
+
+Let $F_1$ be the class of of distribution functions from $\mathbb{R}^d$ with independent coordinates, radius at most $R$, symmetric and monotonically decreasing tails that satisfy the following property: for all $D \in F_1$ centered at ${\mu}$, and any $x \in D_i$ 
+
+$$ \forall \alpha \geq 1, \Pr{(|x-\mu_i| \geq \alpha R)} \leq \frac{1}{2\alpha R}. $$
+
+This last condition is rather tame, since it is satisfied by any distribution with finite variance as well as other families. 
+
+The authors show that for mixtures of $k$ distributions $D_i$ from $F_0$ with known centers at $\mu_i$ such that $| \mu_i - \mu_j |_2 \geq \Omega\left(\frac{Rk^\frac{1}{2}}{\varepsilon^{\frac{1}{2}}} \right)$ and $\frac{|\mu_i - \mu_j|_2}{|\mu_i-\mu_j|_{\infty}} \geq \Omega{\left( \sqrt{\frac{k}{\varepsilon}}\right)}$ there is an algorithm that correctly classifies all but $\varepsilon$ samples with high probability and uses a number of samples polynomial in $d, k, 1/\varepsilon$ and $1/w_{\min}$. For mixtures from $F_1$ a larger separation of the centers is required, but the slope condition is dropped. In particular, they require $|\mu_i - \mu_j |_2 \geq \Omega \left(\frac{Rk^{\frac{5}{2}}}{\varepsilon^{2}}\right)$. 
+
+The key insight of this algorithm is that the most elementary approach works: simply classify each point to the cluster whose center is nearest to it. The question in this case is how do we define near. The surprising answer is that the $\ell_1$ norm is sufficient. In fact, the authors show that there exist distributions for which the same algorithm and the $\ell_2$ norm misclassify a constant fraction of the points. 
+
+\subsection{Main technical lemmas.}
+
+The main technical lemma for learning mixtures with known centers comes from a robust property of arbitrary symmetric distributions. The condition basically says that a sample from the distribution is likely to be closer to the center of the distribution than the a fixed point sufficiently far from the center. The lemma further imposes some slope conditions on this fixed point, but the authors bypass this later for the distributions from $F_1$. 
+
+\begin{lemma}
+Let $\varepsilon$ and $C$ be constants and let $D$ be a distribution centered at the origin with radius $R$. Let $\mu$ be a point such that $|\mu|_2 \geq 4R(C+\frac{1}{\sqrt{\varepsilon}})$, and having a slope of ratio $\frac{|\mu|_2}{|\mu|_\infty} \geq 4(C+\frac{1}{\sqrt{\varepsilon}})$. A point $x$ sampled from $D$ will satisfy 
+
+\begin{equation*}
+|x-\mu|_1 - |x|_1 \geq C|\mu|_2 \geq C^2R 
+\end{equation*}
+
+with probability at least $1-\varepsilon$. 
+ 
+\end{lemma} 
+
+\begin{lemma}
+Fix $\varepsilon \leq \frac{1}{10}$. Suppose $D_1 \in F_1$ and $\mu \in \mathbb{R}^d$ satisfies $|\mu_2|_2 \geq \frac{6000R}{\varepsilon^2}$. Then $x$ sampled from $D_1$ will satisfy 
+
+$$|x - \mu|_1 \geq |x|_1 \geq \frac{|\mu|_2}{15}$$
+
+with probability at least $1-\varepsilon$. 
+\end{lemma} 
 
 \bibliography{18-409-FP.bib} 
 \bibliographystyle{plain} 
