@@ -1,6 +1,6 @@
 %Jennifer Pan, August 2011
 
-\documentclass[10pt,letter]{article}
+\documentclass[11pt,letter]{article}
 	% basic article document class
 	% use percent signs to make comments to yourself -- they will not show up.
 \usepackage{hyperref}
@@ -34,9 +34,17 @@
 \maketitle 
 	% tells latex to follow your header (e.g., title, author) commands.
 
-\section{Introduction} 
+In this short paper we present techniques for learning a mixture of distributions for more general classes of distributions than the ones seen in class. We focus on two papers, their key theorems and how they are applied in algorithms with provable guarantees. 
+
+The first paper, by Kannan et al.\cite{doi:10.1137/S0097539704445925}, uses a spectral projection technique to learn a mixture of log-concave distributions efficiently provided that the means are separated. Their main theorem, which we present and prove, says that for arbitrary distributions the SVD subspace of a sample is close to the means of the samples, where the closeness depends on the variances. Their main result improves the minimal distance between the means. 
+
+The second paper, by Dasgupta et al.\cite{1530741}, focuses on efficiently learning a mixture of symmetric heavy-tailed distributions whose expectation or variance might be infinite, with minimal separation requirements. They present an algorithm for learning when the centers of the distributions are known which uses the $\ell_1$ norm as a classifier, assuming some additional restrictions on the distributions. They also present an algorithm that works when the centers are not known and provably works for the more general family of distributions they consider. We will focus on the first result as it is easier to understand and provides some intuition on the second result. 
+
 \section{Spectral Methods paper}
 \section{Heavy-Tailed Distributions}
- 
+
+\bibliography{18-409-FP.bib} 
+\bibliographystyle{plain} 
+
 \end{document}
 	% line of code telling latex that your document is ending. If you leave this out, you'll get an error
