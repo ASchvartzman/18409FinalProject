@@ -6,11 +6,13 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{amsfonts}
 \usepackage{mathtools}
 \usepackage{complexity}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
 
 	% packages that allow mathematical formatting
 
@@ -38,27 +40,114 @@
 
 In this short paper we present techniques for learning a mixture of distributions for more general classes of distributions than the ones seen in class. We focus on two papers, their key theorems and how they are applied in algorithms with provable guarantees. 
 
-The first paper, by Kannan et al.\cite{doi:10.1137/S0097539704445925}, uses a spectral projection technique to learn a mixture of log-concave distributions efficiently provided that the means are separated. Their main theorem, which we present and prove, says that for arbitrary distributions the SVD subspace of a sample is close to the means of the samples, where the closeness depends on the variances. Their main result improves the minimal distance between the means. 
+The first paper, by Kannan et al.\cite{Kannan08spectral}, uses a spectral projection technique to learn a mixture of log-concave distributions efficiently provided that the means are separated. Their main theorem, which we present and prove, says that for arbitrary distributions the SVD subspace of a sample is close to the means of the samples, where the closeness depends on the variances. Their main result improves the minimal distance between the means. 
 
-The second paper, by Dasgupta et al.\cite{1530741}, focuses on efficiently learning a mixture of symmetric heavy-tailed distributions whose expectation or variance might be infinite, with minimal separation requirements. They present an algorithm for learning when the centers of the distributions are known which uses the $\ell_1$ norm as a classifier, assuming some additional restrictions on the distributions. They also present an algorithm that works when the centers are not known and provably works for the more general family of distributions they consider. We will focus on the first result as it is easier to understand and provides some intuition on the second result. 
+The second paper, by Dasgupta et al.\cite{Dasgupta05heavy-tail}, focuses on efficiently learning a mixture of symmetric heavy-tailed distributions whose expectation or variance might be infinite, with minimal separation requirements. They present an algorithm for learning when the centers of the distributions are known which uses the $\ell_1$ norm as a classifier, assuming some additional restrictions on the distributions. They also present an algorithm that works when the centers are not known and provably works for the more general family of distributions they consider. We will focus on the first result as it is easier to understand and provides some intuition on the second result. 
 
 In both papers, the authors examine different ways to solve the following problem. There is a mixture of $k$ distributions $D_i$ in $d$ dimensions. Each distribution has its own mixing weight $w_i$. A sample $x$ from the mixture is taken from distribution $D_i$ with probability $w_i$. The goal is to classify the points of the sample and approximately learn the underlying distributions. 
 
 \section{Spectral Projection Methods}
 
+(use $n$ for dimension, $\varepsilon$ for $w_{min}$)
+
+The method of spectral projection, i.e., projecting the samples onto the subspace spanned by the top $k$ singular vectors (the SVD subspace) of the distribution, had been successfully applied to the special case of learning a mixture of spherical Gaussians, provided that the separation condition $|\mu_i - \mu_j| = (\sigma_i + \sigma_j) \Omega^*(k^{1/4})$ holds for any $i\not=j$ \cite{Vempala02aspectral}. This removed the dependence on $n$ in the separation conditions. The key idea is that the SVD subspace of a mixture of spherical Gaussians contains the means of its $k$ components. However, this property is not valid for more general classes of distributions, e.g. non-spherical Gaussians.
+Nevertheless, in \cite{Kannan08spectral} Kannan et al. show that spectral projection can approximately preserve the intermean distances ``on average". Based on this key result, they give an efficient algorithm for log-concave distributions, under the separation condition $|\mu_i - \mu_j| = (\sigma_i + \sigma_j) \Omega^*(k^{3/2}/\varepsilon^2)$, where $\varepsilon$ is a lower bound on the mixing weights.\\
+
+\noindent\textbf{Notation.}
+We use $|\cdot|$ to denote the $\ell_2$ distance in $\mathbb R^n$.
+A mixture $F$ in $\mathbb R^n$ has $k$ components $F_1, \cdots, F_k$ with mixing weights $w_1, \cdots, w_k$. The mean of $F_i$ is $\mu_i$, and the maximum variance of $F_i$ in any direction is denoted by $\sigma_i^2$. For any subspace $W$, we denote the maximum variance of $F_i$ along any direction in $W$ by $\sigma_{i, W}^2$.
+The $\ell_2$ distance from a point $x$ to a subspace $W$ is denoted by $d(x, W)$.
+
+For a set of i.i.d. samples $S$ from $F$, we partition $S$ as $S = S_1 \cup \cdots \cup S_k$, where $S_i$ is the set of samples from $F_i$. Let $\mu_i^S$ be the sample mean of $S_i$, i.e.,
+$\mu_i^S = \frac{1}{|S_i|} \sum_{x\in S_i} x$.
+For any subspace $W$, we denote the maximum sample variance of $S_i$ along any direction in $W$ by $\hat \sigma_{i, W}^2(S)$.
+
+\subsection{Main theorem on spectral projection}
+
+For a set of points $S$ in $\mathbb R^n$, let $A$ be the matrix whose rows are the points in $S$. Then the subspace spanned by the top $k$ right singular vectors of $A$ is called the \emph{SVD subspace} of $S$. The following is the main theorem in \cite{Kannan08spectral}, which is an important property of spectral projection. We follow the notations introduced before.
+
+\begin{theorem}\label{thm:spectral-svd}
+Let $W$ be the SVD subspace of $S$. Then
+\[
+\sum_{i=1}^k |S_i| d(\mu_i^S, W)^2 \le k \sum_{i=1}^k |S_i| \hat \sigma_{i, W}^2(S).
+\]
+\end{theorem}
+\begin{proof}
+We use the following lemma which is easy to verify.
+\begin{lemma}\label{lem:pythagorean}
+For points $p, p_1, \cdots, p_K \in \mathbb R^n$, if $\mu_{P} = \frac1K\sum_{i=1}^K p_i$, then
+\[
+\sum_{i=1}^K |p_i - p|^2 = K|p - \mu_P|^2 + \sum_{i=1}^K |p_i - \mu_P|^2.
+\]
+\end{lemma}
+
+Let $M$ be the span of $\mu_1^S, \cdots, \mu_k^S$. For any $x\in \mathbb R^n$, denote by $\pi_M(x)$ the projection of $x$ onto $M$ and by $\pi_W(x)$ the projection of $x$ onto $W$. For any $i$, since $\mu_i^S \in M$, from Lemma \ref{lem:pythagorean} we have
+\begin{equation*}
+\begin{aligned}
+\sum_{x\in S_i} |\pi_M(x)|^2 = |S_i|\cdot|\mu_i^S|^2 + \sum_{x\in S_i} |\pi_M(x) - \mu_i^S|^2 
+\ge |S_i|\cdot|\mu_i^S|^2.
+\end{aligned}
+\end{equation*}
+Taking the sum for $i=1, \cdots, k$, we have
+\begin{equation} \label{eqn1-svd-thm}
+\sum_{x\in S}|\pi_M(x)|^2 = \sum_{i=1}^k \sum_{x\in S_i} |\pi_M(x)|^2
+\ge \sum_{i=1}^k |S_i|\cdot|\mu_i^S|^2
+= \sum_{i=1}^k |S_i| \left( |\pi_W(\mu_i^S)|^2 + d(\mu_i^S, W)^2 \right).
+\end{equation}
+
+Let $e_1, \cdots, e_k$ be an orthonormal basis for $W$. For any $i$, using Lemma \ref{lem:pythagorean} we have
+\begin{equation*}
+\begin{aligned}
+\sum_{x\in S_i} |\pi_W(x)|^2 &= |S_i|\cdot|\pi_W(\mu_i^S)|^2 + \sum_{x\in S_i} |\pi_W(x - \mu_i^S)|^2\\
+&= |S_i|\cdot|\pi_W(\mu_i^S)|^2 + \sum_{j=1}^k \sum_{x\in S_i} |\pi_W(x - \mu_i^S)\cdot e_j|^2\\
+&\le |S_i|\cdot|\pi_W(\mu_i^S)|^2 + k|S_i| \hat \sigma_{i, W}^2(S),
+\end{aligned}
+\end{equation*}
+where the last inequality is because the variance of $S_i$ along any direction in $W$ is at most $\hat \sigma_{i, W}^2(S)$ by definition. Taking the sum for $i=1,\cdots,k$, we get
+\begin{equation} \label{eqn2-svd-thm}
+\sum_{x\in S} |\pi_W(x)|^2 \le \sum_{i=1}^k |S_i|\cdot|\pi_W(\mu_i^S)|^2 + k\sum_{i=1}^k |S_i| \hat \sigma_{i, W}^2(S)
+\end{equation}
+
+It is well-known that the SVD subspace, among all subspaces of dimension at most $k$, minimizes the sum of squared distances from points in $S$ to the subspace (equivalently, maximizes the sum of squared lengths of projections). Hence $\sum_{x\in S}|\pi_M(x)|^2 \le \sum_{x\in S}|\pi_W(x)|^2$. Then by comparing the RHSs of \eqref{eqn1-svd-thm} and \eqref{eqn2-svd-thm}, the proof is completed.
+\end{proof}
+
+Theorem \ref{thm:spectral-svd} essentially gives a way to lower bound the distances between component means after projection, in an average sense. If the means are well separated, they will continue to be after projection.
+
+
+\subsection{Algorithm by spectral projection}
+
+Now we give an informal discription of the algorithm for learning a mixture of log-concave distributions.
+The idea is to project the samples onto the SVD subspace and to classify samples in that subspace. However, since Theorem \ref{thm:spectral-svd} only indicates that the intermean distances are preserved in an average sense, we should not expect to classify all samples after one projection.
+To overcome this, the algorithm runs in $k$ iterations, with the guarantee that there exists one ``large" component that is well separated from others. The algorithm identifies this component, deletes the samples coming from it, and continues to the next iteration.
+
+The inputs consist of $N$ i.i.d. samples, a weight lower bound $0<\varepsilon<1$, an error probability upper bound $0<\delta<1$, and a parameter $N_0<N$. For simplicity, we only describe the first iteration of the algorithm: (the rest iterations are essentially the same)
+\begin{enumerate}
+\item Choose a subset of samples $S$ of size $N_0$. Find the $k$-dimensional SVD subspace $W$ of $S$.
+\item Delete $S$ and project the remaining samples, $T$, to the subspace $W$.
+\item For each projected point $p$:
+\begin{itemize}
+\item Find the closest $\varepsilon N/2$ points. Let the set of these points be $T(p)$ and their mean be $\mu(p)$.
+\item Let $A(p)$ be the matrix whose rows are $x-\mu(p)$ for all $x\in T(p)$. Compute the largest singular value $\sigma(p)$ of $A(p)$. (Note that $\sigma(p)^2$ is the maximum variance of $T(p)$ along any direction in $W$.)
+\end{itemize}
+\item Find a point $p_0$ which maximizes $\sigma(p_0)$. Let $T_0$ be the set of all points in $T$ whose projections are within distance $\frac{256\sqrt k \log(Nk/\delta)}{\varepsilon}$ from $p_0$.
+\item Identify $T_0$ as a component and delete it from samples.
+\end{enumerate}
+
+\subsection{Sketch of the analysis}
+
 \section{Heavy-Tailed Distributions}
 
-The Dasgupta paper \cite{1530741} focuses on heavy-tailed distributions when some of the  moments can even be infinite. In these cases, medians can serve as a more robust estimator than means or variances. Motivated by this, the median radius of a one dimensional distribution is defined. 
+The Dasgupta paper \cite{Dasgupta05heavy-tail} focuses on heavy-tailed distributions when some of the  moments can even be infinite. In these cases, medians can serve as a more robust estimator than means or variances. Motivated by this, the median radius of a one dimensional distribution is defined. 
 
 \begin{definition}
-Let $X$ be a random variable with cumulative distribution function $F(X)$. The center of $X$ is the minimum $c$ such that $F(x) = \frac{1}{2}$. The radius $R$ of $X$ is the smallest $X$ such that half of $X$'s density is in the interval $[c-R, c+R]$. This definition can be generalized to multidimensional distributions by considering the centers coordinate-wise. 
+Let $X$ be a random variable with cumulative distribution function $F(X)$. The center of $X$ is the minimum $c$ such that $F(x) = \frac{1}{2}$. The radius $R$ of $X$ is the smallest $R$ such that half of $X$'s density is in the interval $[c-R, c+R]$. This definition can be generalized to multidimensional distributions by considering the centers coordinate-wise. 
 \end{definition}
 
 Let $F_1$ be the class of of distribution functions from $\mathbb{R}^d$ with independent coordinates, radius at most $R$, symmetric and monotonically decreasing tails that satisfy the following property: for all $D \in F_1$ centered at ${\mu}$, and any $x \in D_i$ 
 
 $$ \forall \alpha \geq 1, \Pr{(|x-\mu_i| \geq \alpha R)} \leq \frac{1}{2\alpha R}. $$
 
-This last condition is rather tame, since it is satisfied by any distribution with finite variance as well as other families. 
+This last condition is rather tame, since it is satisfied by any distribution with finite variance as well as other families.
 
 The authors show that for mixtures of $k$ distributions $D_i$ from $F_0$ with known centers at $\mu_i$ such that $| \mu_i - \mu_j |_2 \geq \Omega\left(\frac{Rk^\frac{1}{2}}{\varepsilon^{\frac{1}{2}}} \right)$ and $\frac{|\mu_i - \mu_j|_2}{|\mu_i-\mu_j|_{\infty}} \geq \Omega{\left( \sqrt{\frac{k}{\varepsilon}}\right)}$ there is an algorithm that correctly classifies all but $\varepsilon$ samples with high probability and uses a number of samples polynomial in $d, k, 1/\varepsilon$ and $1/w_{\min}$. For mixtures from $F_1$ a larger separation of the centers is required, but the slope condition is dropped. In particular, they require $|\mu_i - \mu_j |_2 \geq \Omega \left(\frac{Rk^{\frac{5}{2}}}{\varepsilon^{2}}\right)$. 
 
