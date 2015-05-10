@@ -10,6 +10,7 @@
 \usepackage{mathtools}
 \usepackage{complexity}
 \newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
 	% packages that allow mathematical formatting
@@ -86,6 +87,26 @@ $$|x - \mu|_1 \geq |x|_1 \geq \frac{|\mu|_2}{15}$$
 
 with probability at least $1-\varepsilon$. 
 \end{lemma} 
+
+The proof of the first lemma results from an application of Chebyshev's inequality with appropriate lower bounds on the expectation and upper bounds on the variance. The proof of the second lemma separates large and small coordinates by absolute values of $\mu_i$ with a threshold that depends on $R, \frac{1}{\varepsilon}$. For the larger group, the additional restriction of $F_1$ is used while the previous lemma is still valid for the smaller groups. Both results put together with some common probabilistic tools provide the following theorem. 
+
+\begin{theorem}
+Consider a mixture of $k$ distributions $D_1,..,D_k$ with known centers $\mu_1,...,\mu_k$. If either of the following conditions is met, then classification according to nearest center in the $\ell_1$ norm misclassifies at most $\varepsilon$ of the samples.
+
+\begin{itemize}
+	\item For every $i, j$ $|\mu_i - \mu_j|_2 \geq \Omega\left( R \sqrt{\frac{k}{\varepsilon}}\right)$ and $\frac{|\mu_i - \mu_j|_2}{|\mu_i - \mu_j|_\infty} \geq \Omega \left( \sqrt{\frac{k}{\varepsilon}}\right)$ or
+	\item Each distribution belongs to the class $F_1$ and for every $i, j$ $|\mu_i - \mu_j|_2 \geq \Omega\left(R\frac{k^2}{\varepsilon^2}\right)$.
+	
+\end{itemize}
+\end{theorem}
+
+The intuition for the case where the centers are not known is the following. If we knew the centers, then we know that the $\ell_1$ norm would be sufficient to classify the points. Consider partitioning the coordinates in two groups and clustering the points independently using both partitions, then we should get approximately the same clusters. 
+
+The algorithm iteratively selects a set of sample points $S_0$ to build the clusters and another group $S_1$ to cross-validate the clusters. All possible clusterings of $S_0$ into $k+1$ groups are considered. The algorithm then computes the median of each cluster except the last one for both partitions and then uses these centers to classify the points of $S_1$. If the first and second clusters are similar for each cluster and the $k+1$-st cluster is small, the algorithm accepts. Otherwise, it will pick another partition of the coordinates and try again.  
+
+At first, it might seem discouraging that the algorithm might have to go through every possible partition of the coordinates but the authors quickly show that most partitions will be good provided that the centers are sufficiently not axis-aligned. 
+
+
 
 \bibliography{18-409-FP.bib} 
 \bibliographystyle{plain} 
