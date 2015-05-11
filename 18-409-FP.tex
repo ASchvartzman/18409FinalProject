@@ -12,8 +12,9 @@
 \usepackage{complexity}
 \usepackage{enumerate}
 \newtheorem{definition}{Definition}
-\newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+%\newtheorem{theorem}{Theorem}
 
 	% packages that allow mathematical formatting
 
@@ -121,6 +122,7 @@ Now we describe the algorithm for learning a mixture of log-concave distribution
 The idea is to project the samples onto the SVD subspace and to classify samples in that subspace. However, since Theorem \ref{thm:spectral-svd} only indicates that the intermean distances are preserved in an average sense, we should not expect to classify all samples after one projection.
 To overcome this, the algorithm runs in $k$ iterations, with the guarantee that in each iteration there exists one ``large" component that is well separated from others. The algorithm identifies this component, deletes the samples coming from it, and continues to the next iteration.
 
+
 The inputs consist of $N$ i.i.d. samples, a weight lower bound $0<\varepsilon<1$, an error probability upper bound $0<\delta<1$, and a parameter $N_0<N$. For simplicity, we only describe the first iteration of the algorithm: (the rest iterations are essentially the same)
 \begin{enumerate}
 \item Choose a subset of samples $S$ of size $N_0$. Find the $k$-dimensional SVD subspace $W$ of $S$.
@@ -176,7 +178,6 @@ Let $X$ be a random variable with cumulative distribution function $F(X)$. The c
 \end{definition}
 
 Let $\mathcal F_0$ be the class of of distributions in $\mathbb{R}^d$ with independent coordinates, radius at most $R$ and symmetric and monotonically decreasing tails. Let $\mathcal F_1$ be a subset of $\mathcal F_0$ with one additional constraint: for any distribution $D \in \mathcal F_1$ centered at ${\mu}$ and any coordinate $D_i$ of $D$, a random variable $X$ from $D_i$ satisfies 
-
 $$ \forall \alpha \geq 1, \Pr{(|X-\mu_i| \geq \alpha R)} \leq \frac{1}{2\alpha R}$$
 where $\mu_i$ is the center of $D_i$.
 This last condition is rather tame, since it is satisfied by any distribution with finite variance as well as other families.
@@ -216,13 +217,15 @@ Consider a mixture of $k$ distributions $D_1,..,D_k$ with known centers $\mu_1,.
 \end{itemize}
 \end{theorem}
 
-\section{Algorithm for the general case}
+\subsection{Algorithm for the general case}
 
 The intuition for the general case where the centers are not known is the following. If we knew the centers, then we know that the $\ell_1$ norm would be sufficient to classify the points. Consider partitioning the coordinates in two groups and clustering the points independently using both partitions, then we should get approximately the same clusters. 
 
 The algorithm iteratively selects a set of sample points $S_0$ to build the clusters and another group $S_1$ to cross-validate the clusters. All possible clusterings of $S_0$ into $k+1$ groups are considered. The algorithm then computes the median of each cluster except the last one for both partitions and then uses these centers to classify the points of $S_1$. If the first and second clusters are similar for each cluster and the $k+1$-st cluster is small, the algorithm accepts. Otherwise, it will pick another partition of the coordinates and try again.  
 
 At first, it might seem discouraging that the algorithm might have to go through every possible partition of the coordinates but the authors quickly show that most partitions will be good provided that the centers are sufficiently not axis-aligned. 
+
+
 
 
 
