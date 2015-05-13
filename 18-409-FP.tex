@@ -11,6 +11,7 @@
 \usepackage{mathtools}
 \usepackage{complexity}
 \usepackage{enumerate}
+\usepackage[margin=1in]{geometry}
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -23,7 +24,7 @@
 \usepackage{setspace}
 	% package that allows you to change spacing
 
-\usepackage{fullpage}
+%\usepackage{fullpage}
 	% package that specifies normal margins
 	
 
@@ -53,8 +54,13 @@ In both papers, the authors examine different ways to solve the following proble
 
 %(use $n$ for dimension, $\varepsilon$ for $w_{min}$)
 
-The method of spectral projection, i.e., projecting the samples onto the subspace spanned by the top $k$ singular vectors (the SVD subspace) of the distribution, had been successfully applied to the special case of learning a mixture of spherical Gaussians, provided that the separation condition $|\mu_i - \mu_j| = (\sigma_i + \sigma_j) \Omega^*(k^{1/4})$ holds for any $i\not=j$ \cite{Vempala02aspectral}. This removed the dependence on $n$ in the separation condition. The key idea is that the SVD subspace of a mixture of spherical Gaussians contains the means of its $k$ components. However, this property is not valid for more general classes of distributions, e.g. non-spherical Gaussians.
-Nevertheless, in \cite{Kannan08spectral} Kannan et al. show that spectral projection can approximately preserve the intermean distances ``on average". Based on this key result, they give an efficient algorithm for log-concave distributions, under the separation condition $|\mu_i - \mu_j| = (\sigma_i + \sigma_j) \Omega^*\left(\frac{k^{3/2}}{\varepsilon^2}\right)$, where $\varepsilon$ is a lower bound on the mixing weights $w_i$.\\
+The method of spectral projection, i.e., projecting the samples onto the subspace spanned by the top $k$ singular vectors (the SVD subspace) of the distribution, was successfully applied to the special case of learning a mixture of spherical Gaussians, provided that the separation condition $|\mu_i - \mu_j| = (\sigma_i + \sigma_j) \Omega^*(k^{1/4})$ holds for any $i\not=j$ \cite{Vempala02aspectral}. This removed the dependence on $n$ in the separation condition. The key idea is that the SVD subspace of a mixture of spherical Gaussians contains the means of its $k$ components. However, this property is not valid for more general classes of distributions, e.g. non-spherical Gaussians.
+Nevertheless, in \cite{Kannan08spectral} Kannan et al. show that spectral projection can approximately preserve the intermean distances ``on average". Based on this key result, they give an efficient algorithm for log-concave distributions, under the separation condition $|\mu_i - \mu_j| = (\sigma_i + \sigma_j) \Omega^*\left(\frac{k^{3/2}}{\varepsilon^2}\right)$, where $\varepsilon$ is a lower bound on the mixing weights $w_i$.
+
+It is worth noting that this algorithm for log-concave distributions does not identify all the components after one spectral projection (as in the case of spherical Gaussians). Instead, it runs iteratively and identifies one component in each iteration through projection.
+The reason is that one can only show that the intermean distances are preserved in an average sence after projection, and some component means may become very close so the samples from those components are indistinguishable. On the other hand, it is shown that there is one component that is still separated from others, and the algorithm correctly identifies such a component in each iteration.\\
+
+
 
 \noindent\textbf{Notation.}
 We use $|\cdot|$ to denote the $\ell_2$ distance in $\mathbb R^n$.
@@ -184,7 +190,7 @@ This last condition is rather tame, since it is satisfied by any distribution wi
 
 The authors show that for a mixture of $k$ distributions $D_1, \cdots, D_k$ from $\mathcal F_0$ with centers at $\mu_1, \cdots, \mu_k$ such that $\| \mu_i - \mu_j \|_2 \geq \Omega\left(R \sqrt \frac k \epsilon \right)$ and $\frac{\|\mu_i - \mu_j\|_2}{\|\mu_i-\mu_j\|_{\infty}} \geq \Omega{\left( \sqrt{\frac{k}{\epsilon}}\right)}$ there is an algorithm that correctly classifies all but $\epsilon$ fraction of samples with high probability and uses a number of samples polynomial in $n, k, 1/\epsilon$ and $1/w_{\min}$. For mixtures from $\mathcal F_1$ a larger separation of the centers is required, but the slope condition is dropped. In particular, they require $\|\mu_i - \mu_j \|_2 \geq \Omega^* \left(\frac{Rk^{\frac{5}{2}}}{\epsilon^{2}}\right)$ in general and $\|\mu_i - \mu_j \|_2 \geq \Omega \left(\frac{Rk^{2}}{\epsilon^{2}}\right)$ for the easier case where centers are known.
 
-The key insight of this algorithm is that the most elementary approach works: when centers are known, simply classify each point to the cluster whose center is nearest to it. The question in this case is how do we define ``near". The surprising answer is that the $\ell_1$ norm is sufficient. In fact, the authors show that there exist distributions for which the same algorithm and the $\ell_2$ norm misclassify a constant fraction of the points. A key difference between these norms is that $\ell_2$ is rotationally symmetric where as $\ell_1$ is not. This makes clear an implicit assumption of this algorithm: the components of the distributions we are considering are independent but not spherically symmetric. If they were, both norms would produce the same results but we know one of them would misclassify a constant fraction of the points. 
+The key insight of this algorithm is that the most elementary approach works: when centers are known, simply classify each point to the cluster whose center is nearest to it. The question in this case is how do we define ``near". The surprising answer is that the $\ell_1$ norm is sufficient. In fact, the authors show that there exist distributions for which the same algorithm and the $\ell_2$ norm misclassify a constant fraction of the points. A key difference between these norms is that $\ell_2$ is rotationally symmetric whereas $\ell_1$ is not. This makes clear an implicit assumption of this model: the distributions we are considering are coordinate-wise independent. If they were spherically symmetric instead, both norms would produce the same results; the paper does not solve the problem in such case. 
 
 \subsection{Main technical lemmas}
 
