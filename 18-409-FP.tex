@@ -230,7 +230,7 @@ The intuition for the general case where the centers are not known is the follow
 
 The algorithm iteratively selects a set of sample points $S_0$ to build the clusters and another group $S_1$ to cross-validate the clusters. All possible clusterings of $S_0$ into $k+1$ groups are considered. The algorithm then computes the median of each cluster except the last one for both partitions and then uses these centers to classify the points of $S_1$. If the first and second clusters are similar for each cluster and the $(k+1)$-st cluster is small, the algorithm accepts. Otherwise, it will pick another partition of the coordinates and try again.  
 
-At first, it might seem discouraging that the algorithm might have to go through every possible partition of the coordinates, but the authors quickly show that most partitions will be good provided that the centers are sufficiently not axis-aligned. 
+At first, it might seem discouraging that the algorithm might have to go through every possible partition of the coordinates, but the authors quickly show that most partitions will be good provided that the centers are sufficiently not axis-aligned. The algorithm still is exponential in $k$.
 
 
 
